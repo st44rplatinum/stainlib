@@ -2,6 +2,8 @@
 
 #![forbid(unsafe_code)]
 #![warn(missing_docs)]
+// 3x3 maths reads best with index loops
+#![allow(clippy::needless_range_loop)]
 
 mod linalg;
 mod od;
@@ -73,11 +75,7 @@ impl core::fmt::Display for StainError {
 
 impl std::error::Error for StainError {}
 
-fn validate_rgb(
-    rgb: &[u8],
-    width: usize,
-    height: usize,
-) -> Result<(), StainError> {
+fn validate_rgb(rgb: &[u8], width: usize, height: usize) -> Result<(), StainError> {
     let expected = width
         .checked_mul(height)
         .and_then(|n| n.checked_mul(3))
@@ -121,11 +119,7 @@ pub struct RgbView<'a> {
 
 impl<'a> RgbView<'a> {
     /// Construct an RGB view after validating dimensions.
-    pub fn new(
-        data: &'a [u8],
-        width: usize,
-        height: usize,
-    ) -> Result<Self, StainError> {
+    pub fn new(data: &'a [u8], width: usize, height: usize) -> Result<Self, StainError> {
         validate_rgb(data, width, height)?;
         Ok(Self {
             data,
@@ -148,11 +142,7 @@ pub struct RgbBuffer {
 
 impl RgbBuffer {
     /// Create an RGB buffer after validating dimensions.
-    pub fn new(
-        data: Vec<u8>,
-        width: usize,
-        height: usize,
-    ) -> Result<Self, StainError> {
+    pub fn new(data: Vec<u8>, width: usize, height: usize) -> Result<Self, StainError> {
         validate_rgb(&data, width, height)?;
         Ok(Self {
             data,
@@ -161,4 +151,3 @@ impl RgbBuffer {
         })
     }
 }
-

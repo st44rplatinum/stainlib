@@ -1,13 +1,9 @@
 //! HED colour deconvolution, matching scikit-image's `rgb2hed` / `hed2rgb`.
 
-use crate::{linalg::inverse3, validate_rgb, StainError};
+use crate::{StainError, linalg::inverse3, validate_rgb};
 
 /// scikit-image's `rgb_from_hed`. Rows are not normalised.
-const RGB_FROM_HED: [[f64; 3]; 3] = [
-    [0.65, 0.70, 0.29],
-    [0.07, 0.99, 0.11],
-    [0.27, 0.57, 0.78],
-];
+const RGB_FROM_HED: [[f64; 3]; 3] = [[0.65, 0.70, 0.29], [0.07, 0.99, 0.11], [0.27, 0.57, 0.78]];
 
 /// Floor applied before the log, as in scikit-image.
 const MIN: f64 = 1e-6;
@@ -32,10 +28,9 @@ pub fn rgb2hed(rgb: &[u8], width: usize, height: usize) -> Result<Vec<f64>, Stai
 
         // row vector times matrix
         for j in 0..3 {
-            dst[j] = (x[0] * hed_from_rgb[0][j]
-                + x[1] * hed_from_rgb[1][j]
-                + x[2] * hed_from_rgb[2][j])
-                .max(0.0);
+            dst[j] =
+                (x[0] * hed_from_rgb[0][j] + x[1] * hed_from_rgb[1][j] + x[2] * hed_from_rgb[2][j])
+                    .max(0.0);
         }
     }
 

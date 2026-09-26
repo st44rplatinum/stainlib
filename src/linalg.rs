@@ -74,11 +74,7 @@ pub(crate) fn covariance3(samples: &[[f64; 3]]) -> [[f64; 3]; 3] {
     let mut cov = [[0.0; 3]; 3];
 
     for x in samples {
-        let d = [
-            x[0] - mean[0],
-            x[1] - mean[1],
-            x[2] - mean[2],
-        ];
+        let d = [x[0] - mean[0], x[1] - mean[1], x[2] - mean[2]];
 
         for i in 0..3 {
             for j in 0..3 {
@@ -94,16 +90,12 @@ pub(crate) fn covariance3(samples: &[[f64; 3]]) -> [[f64; 3]; 3] {
             *x /= divisor;
         }
     }
-    
-    cov 
+
+    cov
 }
 
 pub(crate) fn symmetric_eigen3(mut a: [[f64; 3]; 3]) -> Option<([f64; 3], [[f64; 3]; 3])> {
-    let mut v = [
-        [1.0, 0.0, 0.0],
-        [0.0, 1.0, 0.0],
-        [0.0, 0.0, 1.0],
-    ];
+    let mut v = [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]];
 
     for _ in 0..32 {
         let mut p = 0;
@@ -115,7 +107,7 @@ pub(crate) fn symmetric_eigen3(mut a: [[f64; 3]; 3]) -> Option<([f64; 3], [[f64;
         }
 
         if a[1][2].abs() > a[p][q].abs() {
-            p = 1; 
+            p = 1;
             q = 2;
         }
 

@@ -1,20 +1,17 @@
 //! Macenko stain normalisation, matching torchstain 1.4.1 (numpy backend).
 
 use crate::{
+    StainError,
     linalg::{covariance3, percentile, symmetric_eigen3},
     od::macenko_od,
-    validate_rgb, StainError,
+    validate_rgb,
 };
 
 const IO: f64 = 240.0;
 const ALPHA: f64 = 1.0;
 const BETA: f64 = 0.15;
 
-const HE_REF: [[f64; 2]; 3] = [
-    [0.5626, 0.2159],
-    [0.7201, 0.8012],
-    [0.4062, 0.5581],
-];
+const HE_REF: [[f64; 2]; 3] = [[0.5626, 0.2159], [0.7201, 0.8012], [0.4062, 0.5581]];
 
 const MAX_C_REF: [f64; 2] = [1.9705, 1.0308];
 
@@ -60,12 +57,7 @@ impl Default for Macenko {
 
 impl Macenko {
     /// Fit a stain model to an RGB image.
-    pub fn fit(
-        &self,
-        rgb: &[u8],
-        width: usize,
-        height: usize,
-    ) -> Result<MacenkoFit, StainError> {
+    pub fn fit(&self, rgb: &[u8], width: usize, height: usize) -> Result<MacenkoFit, StainError> {
         validate_rgb(rgb, width, height)?;
 
         let mut od = Vec::with_capacity(width * height);
@@ -80,10 +72,7 @@ impl Macenko {
 
             od.push(x);
 
-            if x[0] >= self.beta
-                && x[1] >= self.beta
-                && x[2] >= self.beta
-            {
+            if x[0] >= self.beta && x[1] >= self.beta && x[2] >= self.beta {
                 tissue.push(x);
             }
         }
@@ -127,8 +116,7 @@ impl Macenko {
         }
 
         let min_phi = percentile(&phi, self.alpha).ok_or(StainError::InvalidPercentile)?;
-        let max_phi =
-            percentile(&phi, 100.0 - self.alpha).ok_or(StainError::InvalidPercentile)?;
+        let max_phi = percentile(&phi, 100.0 - self.alpha).ok_or(StainError::InvalidPercentile)?;
 
         let direction = |angle: f64| {
             [
@@ -220,10 +208,7 @@ impl Macenko {
     }
 }
 
-fn concentrations(
-    od: &[[f64; 3]],
-    he: [[f64; 2]; 3],
-) -> Result<(Vec<f64>, Vec<f64>), StainError> {
+fn concentrations(od: &[[f64; 3]], he: [[f64; 2]; 3]) -> Result<(Vec<f64>, Vec<f64>), StainError> {
     let a = he[0][0];
     let b = he[0][1];
     let c = he[1][0];
