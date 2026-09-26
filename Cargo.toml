@@ -1,0 +1,21 @@
+[package]
+name = "stainlib"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+description = "Stain deconvolution and normalization for RGB histology images"
+license = "MIT OR Apache-2.0"
+readme = "README.md"
+keywords = ["histology", "pathology", "stain", "macenko", "reinhard"]
+categories = ["science", "wasm"]
+
+[features]
+default = []
+image = ["dep:image"]
+
+[dependencies]
+image = { version = "0.25", optional = true, default-features = false }
+
+[dev-dependencies]
+ndarray = "0.16"
+ndarray-npy = "0.9"

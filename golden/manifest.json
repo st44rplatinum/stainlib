@@ -1,0 +1,17 @@
+{
+  "generator": "golden/make_golden.py",
+  "python": "3.13.14",
+  "numpy": "2.5.3",
+  "scikit_image": "0.26.0",
+  "torchstain": "1.4.1",
+  "references": {
+    "hed": "skimage.color.rgb2hed / hed2rgb",
+    "macenko": "torchstain.normalizers.MacenkoNormalizer(backend='numpy')"
+  },
+  "macenko": {
+    "io": 240.0,
+    "alpha": 1,
+    "beta": 0.15
+  },
+  "images": "64x64 synthetic Beer-Lambert H&E, fixed seeds"
+}
