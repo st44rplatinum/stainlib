@@ -98,6 +98,28 @@ def generate_macenko():
     save("macenko_normalized", normalized)
 
 
+def reinhard_stats(rgb):
+    from torchstain.numpy.utils.rgb2lab import rgb2lab
+    from torchstain.numpy.utils.split import lab_split
+    from torchstain.numpy.utils.stats import get_mean_std
+
+    lab = rgb2lab(rgb.astype("float32") / 255)
+    stats = np.array([get_mean_std(x) for x in lab_split(lab)], dtype=np.float64)
+    return stats.T  # row 0 means, row 1 stds
+
+
+def generate_reinhard():
+    source = np.load(ROOT / "macenko_source.npy")
+    target = np.load(ROOT / "macenko_target.npy")
+
+    normalizer = torchstain.normalizers.ReinhardNormalizer(backend="numpy")
+    normalizer.fit(target)
+
+    save("reinhard_source_stats", reinhard_stats(source))
+    save("reinhard_target_stats", reinhard_stats(target))
+    save("reinhard_normalized", normalizer.normalize(source))
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--update", action="store_true")
@@ -109,6 +131,7 @@ def main():
 
     generate_hed()
     generate_macenko()
+    generate_reinhard()
 
     # written last, so a crash above leaves nothing claiming to be complete
     manifest = {
@@ -121,6 +144,7 @@ def main():
         "references": {
             "hed": "skimage.color.rgb2hed / hed2rgb",
             "macenko": "torchstain.normalizers.MacenkoNormalizer(backend='numpy')",
+            "reinhard": "torchstain.normalizers.ReinhardNormalizer(backend='numpy')",
         },
         "macenko": {"io": IO, "alpha": 1, "beta": 0.15},
         "images": f"{SIZE}x{SIZE} synthetic Beer-Lambert H&E, fixed seeds",

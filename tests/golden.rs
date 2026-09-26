@@ -3,7 +3,7 @@
 
 use ndarray::{Array1, Array2, Array3};
 use ndarray_npy::read_npy;
-use stainlib::{hed2rgb, rgb2hed, Macenko, MacenkoFit, StainError};
+use stainlib::{hed2rgb, rgb2hed, Macenko, MacenkoFit, Reinhard, StainError};
 
 fn path(name: &str) -> String {
     format!("{}/golden/{name}.npy", env!("CARGO_MANIFEST_DIR"))
@@ -142,6 +142,48 @@ fn wrong_buffer_size_errors() {
     assert!(matches!(rgb2hed(&rgb, 4, 4), Err(StainError::InvalidDimensions { .. })));
 }
 
+fn stats(name: &str) -> ([f64; 3], [f64; 3]) {
+    let a: Array2<f64> = read_npy(path(name)).expect(name);
+    ([a[[0, 0]], a[[0, 1]], a[[0, 2]]], [a[[1, 0]], a[[1, 1]], a[[1, 2]]])
+}
+
 #[test]
-#[ignore = "Reinhard is not implemented yet"]
-fn reinhard_matches_torchstain() {}
+fn reinhard_fit_matches_torchstain() {
+    // torchstain works in float32, so agree to about 1e-4 in LAB units
+    for name in ["source", "target"] {
+        let (rgb, w, h) = image(&format!("macenko_{name}"));
+        let fit = Reinhard.fit(&rgb, w, h).unwrap();
+        let (mean, std) = stats(&format!("reinhard_{name}_stats"));
+        for c in 0..3 {
+            assert!((fit.mean[c] - mean[c]).abs() <= 1e-3, "{name} mean[{c}] {} vs {}", fit.mean[c], mean[c]);
+            assert!((fit.std[c] - std[c]).abs() <= 1e-3, "{name} std[{c}] {} vs {}", fit.std[c], std[c]);
+        }
+    }
+}
+
+#[test]
+fn reinhard_normalize_matches_torchstain() {
+    let (source, w, h) = image("macenko_source");
+    let (target, tw, th) = image("macenko_target");
+    let source_fit = Reinhard.fit(&source, w, h).unwrap();
+    let target_fit = Reinhard.fit(&target, tw, th).unwrap();
+    let ours = Reinhard.normalize(&source, w, h, &source_fit, &target_fit).unwrap();
+
+    let (expected, _, _) = image("reinhard_normalized");
+    let worst = ours
+        .iter()
+        .zip(&expected)
+        .map(|(a, b)| (i16::from(*a) - i16::from(*b)).abs())
+        .max()
+        .unwrap();
+    assert!(worst <= 1, "worst channel difference {worst}");
+}
+
+#[test]
+fn reinhard_identity_when_source_is_target() {
+    let (rgb, w, h) = image("macenko_target");
+    let fit = Reinhard.fit(&rgb, w, h).unwrap();
+    let out = Reinhard.normalize(&rgb, w, h, &fit, &fit).unwrap();
+    let worst = out.iter().zip(&rgb).map(|(a, b)| (i16::from(*a) - i16::from(*b)).abs()).max().unwrap();
+    assert!(worst <= 1, "worst channel difference {worst}");
+}

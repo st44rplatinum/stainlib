@@ -37,3 +37,5 @@ check the synthetic tiles cannot; record its attribution and source URL here.
 | Macenko fit vs torchstain | 1e-6 on stain vectors and max concentrations |
 | Macenko vs ground truth | cosine >= 0.999 (torchstain gets 1.0000 / 0.9995) |
 | Macenko normalised image | 1 grey level |
+| Reinhard stats vs torchstain | 1e-3 LAB units (torchstain is float32) |
+| Reinhard normalised image | 1 grey level |

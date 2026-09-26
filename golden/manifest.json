@@ -6,7 +6,8 @@
   "torchstain": "1.4.1",
   "references": {
     "hed": "skimage.color.rgb2hed / hed2rgb",
-    "macenko": "torchstain.normalizers.MacenkoNormalizer(backend='numpy')"
+    "macenko": "torchstain.normalizers.MacenkoNormalizer(backend='numpy')",
+    "reinhard": "torchstain.normalizers.ReinhardNormalizer(backend='numpy')"
   },
   "macenko": {
     "io": 240.0,
