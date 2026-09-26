@@ -6,6 +6,7 @@ rust-version = "1.85"
 description = "Stain deconvolution and normalization for RGB histology images"
 license = "MIT OR Apache-2.0"
 readme = "README.md"
+repository = "https://github.com/st44rplatinum/stainlib"
 keywords = ["histology", "pathology", "stain", "macenko", "reinhard"]
 categories = ["science", "wasm"]
 
